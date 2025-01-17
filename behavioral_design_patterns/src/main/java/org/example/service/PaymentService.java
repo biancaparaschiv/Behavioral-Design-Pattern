@@ -1,23 +1,33 @@
-package org.example.service;
-
 import org.example.model.Order;
 import org.example.model.PaymentDetails;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PaymentService {
-    public boolean validatePayment(Order order) {
-        PaymentDetails paymentDetails = order.getPaymentDetails();
 
-        // Perform validation based on payment details
-        if (paymentDetails == null || paymentDetails.getCardNumber() == null) {
-            return false; // Validation failed
+    // Validates the payment for a given order
+    public boolean validatePayment(Order order) {
+        if (order == null || order.getPaymentDetails() == null) {
+            return false; // Invalid order or missing payment details
         }
 
-        System.out.println("Validating payment with method: " + paymentDetails.getPaymentMethod());
-        // Additional validation logic here
+        PaymentDetails paymentDetails = order.getPaymentDetails();
+        
+        // Check if the card number is present
+        if (paymentDetails.getCardNumber() == null) {
+            return false; // Card number is missing, validation failed
+        }
 
-        return true;
+        // Log the method used for payment validation
+        logPaymentMethod(paymentDetails);
+
+        // Additional validation logic can be added here (e.g., checking the payment status)
+
+        return true; // If all validations pass
+    }
+
+    // Helper method to log payment method for better clarity
+    private void logPaymentMethod(PaymentDetails paymentDetails) {
+        System.out.println("Payment validated with method: " + paymentDetails.getPaymentMethod());
     }
 }
-
