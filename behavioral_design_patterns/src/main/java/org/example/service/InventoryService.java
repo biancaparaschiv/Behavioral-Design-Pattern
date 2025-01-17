@@ -7,13 +7,22 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class InventoryService {
+
     @Autowired
     private InventoryRepository inventoryRepository;
 
+    // Check if there is enough stock available for a given product and quantity
     public boolean isInStock(Long productId, int quantity) {
-        // Check if the inventory has enough stock for the requested product
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero.");
+        }
+
         Inventory inventory = inventoryRepository.findByProductId(productId);
-        return inventory != null && inventory.getAvailableQuantity() >= quantity;
+
+        if (inventory == null) {
+            throw new RuntimeException("Inventory not found for product ID: " + productId);
+        }
+
+        return inventory.getAvailableQuantity() >= quantity;
     }
 }
-
