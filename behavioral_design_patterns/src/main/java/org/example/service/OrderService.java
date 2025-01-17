@@ -10,28 +10,36 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrderService {
     private PaymentStrategy paymentStrategy;
+
     @Autowired
     private OrderRepository orderRepository;
 
+    // Get an order by its ID
     public Order getOrderById(Long orderId) {
-        return orderRepository.findById(orderId).orElse(null);
+        return orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
+    // Place a new order and save it to the repository
     public Order placeOrder(Order order) {
         order.setStatus(String.valueOf(OrderStatus.PLACED));
         orderRepository.save(order);
         return order;
     }
 
+    // Set the payment strategy for processing payment
     public void setPaymentStrategy(PaymentStrategy paymentStrategy) {
         this.paymentStrategy = paymentStrategy;
     }
 
+    // Process payment for an order
     public boolean processOrderPayment(double amount) {
+        if (paymentStrategy == null) {
+            throw new RuntimeException("Payment strategy not defined");
+        }
         return paymentStrategy.pay(amount);
     }
 
-    // Method to update an existing order
+    // Update an existing order
     public Order updateOrder(Long id, Order updatedOrder) {
         return orderRepository.findById(id)
                 .map(order -> {
@@ -44,12 +52,11 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
-    // Method to delete an order by ID
+    // Delete an order by its ID
     public void deleteOrder(Long id) {
-        if (orderRepository.existsById(id)) {
-            orderRepository.deleteById(id);
-        } else {
+        if (!orderRepository.existsById(id)) {
             throw new RuntimeException("Order not found");
         }
+        orderRepository.deleteById(id);
     }
 }
