@@ -6,6 +6,20 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
-    Inventory findByProductId(Long productId);
+
+    // Finds inventory by product ID and throws an exception if not found
+    default Inventory findByProductId(Long productId) {
+        Inventory inventory = findByProductIdWithoutException(productId);
+        
+        if (inventory == null) {
+            throw new RuntimeException("Inventory not found for product ID: " + productId);
+        }
+        
+        return inventory;
+    }
+
+    // Original method to find by product ID (no exception handling)
+    Inventory findByProductIdWithoutException(Long productId);
+
 }
 
